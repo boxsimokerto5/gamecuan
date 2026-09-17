@@ -1,0 +1,93 @@
+name: Build Android APK and AAB
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Generate Release Keystore, APK & AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew (if present)
+        run: |
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+          fi
+
+      - name: Generate Automatic Signature Keystore & Extract SHA-1
+        id: generate_keystore
+        run: |
+          echo "================================================================"
+          echo "           MEMBUAT SIGNATURE KEYSTORE SECARA OTOMATIS            "
+          echo "================================================================"
+          
+          KEYSTORE_FILE="my-upload-key.jks"
+          KEY_ALIAS="upload"
+          STORE_PASS="gamecuan12345"
+          KEY_PASS="gamecuan12345"
+          
+          # Generate JKS keystore if not exists
+          keytool -genkeypair \
+            -v \
+            -keystore "$KEYSTORE_FILE" \
+            -alias "$KEY_ALIAS" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$STORE_PASS" \
+            -keypass "$KEY_PASS" \
+            -dname "CN=GecckoCreator, OU=Mobile, O=GameCuan, L=Jakarta, ST=DKI, C=ID"
+            
+          echo "Keystore berhasil dibuat: $KEYSTORE_FILE"
+          
+          echo "================================================================"
+          echo "               SHA-1 & SHA-256 SIGNATURE FINGERPRINT            "
+          echo "   (Salin SHA-1 ini untuk verifikasi di Google Cloud / Firebase)  "
+          echo "================================================================"
+          
+          # Print fingerprint details
+          keytool -list -v \
+            -keystore "$KEYSTORE_FILE" \
+            -alias "$KEY_ALIAS" \
+            -storepass "$STORE_PASS"
+            
+          echo "================================================================"
+
+      - name: Setup Environment Variables
+        run: |
+          echo "STORE_PASSWORD=gamecuan12345" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=gamecuan12345" >> $GITHUB_ENV
+          echo "KEYSTORE_PATH=${GITHUB_WORKSPACE}/my-upload-key.jks" >> $GITHUB_ENV
+
+      - name: Build Release APK & AAB with Gradle
+        run: |
+          if [ -f "./gradlew" ]; then
+            ./gradlew :app:assembleRelease :app:bundleRelease --stacktrace
+          else
+            gradle :app:assembleRelease :app:bundleRelease --stacktrace
+          fi
+
+      - name: Upload Build Artifacts (APK, AAB & Keystore)
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamecuan-release-artifacts
+          path: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab
+            my-upload-key.jks
+          retention-days: 30
