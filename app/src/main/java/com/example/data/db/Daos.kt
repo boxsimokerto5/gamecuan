@@ -36,6 +36,9 @@ interface DailyMissionDao {
     @Query("SELECT * FROM daily_missions")
     fun getAllMissions(): Flow<List<DailyMissionEntity>>
 
+    @Query("SELECT * FROM daily_missions")
+    suspend fun getAllMissionsDirect(): List<DailyMissionEntity>
+
     @Query("SELECT * FROM daily_missions WHERE id = :missionId")
     suspend fun getMissionById(missionId: String): DailyMissionEntity?
 

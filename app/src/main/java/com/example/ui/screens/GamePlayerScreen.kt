@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -95,93 +97,104 @@ fun GamePlayerScreen(
             color = Color(0xFF1E293B),
             shadowElevation = 4.dp
         ) {
-            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Close button
-                    IconButton(
-                        onClick = { onClose(playSeconds) },
-                        modifier = Modifier.testTag("close_game_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Tutup Game",
-                            tint = Color.White
-                        )
-                    }
-
-                    // Game Title & Category
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = game.title,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
-                            color = Color.White,
-                            maxLines = 1
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Timer,
-                                contentDescription = null,
-                                tint = GoldCoin,
-                                modifier = Modifier.size(13.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            val minutes = playSeconds / 60
-                            val seconds = playSeconds % 60
-                            Text(
-                                text = String.format("%02d:%02d", minutes, seconds),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = GoldCoin
-                            )
-                        }
-                    }
-
-                    // Reward badge
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = if (earnedRewardBonus) SuccessGreen.copy(alpha = 0.2f) else GoldCoin.copy(alpha = 0.2f)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MonetizationOn,
-                                contentDescription = null,
-                                tint = if (earnedRewardBonus) SuccessGreen else GoldCoin,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = if (earnedRewardBonus) "+Bonus Aktif!" else "Cuan",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (earnedRewardBonus) SuccessGreen else GoldCoinDark
-                            )
-                        }
-                    }
-                }
-
-                // Reward Progress Bar for 60s target
-                val progress = (playSeconds / 60f).coerceIn(0f, 1f)
-                Spacer(modifier = Modifier.height(6.dp))
-                LinearProgressIndicator(
-                    progress = { progress },
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(2.dp)),
-                    color = if (earnedRewardBonus) SuccessGreen else GoldCoin,
-                    trackColor = Color.White.copy(alpha = 0.1f)
-                )
+                        .widthIn(max = 840.dp)
+                        .statusBarsPadding()
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Close button
+                        IconButton(
+                            onClick = { onClose(playSeconds) },
+                            modifier = Modifier.testTag("close_game_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Tutup Game",
+                                tint = Color.White
+                            )
+                        }
+
+                        // Game Title & Category
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = game.title,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = Color.White,
+                                maxLines = 1
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Timer,
+                                    contentDescription = null,
+                                    tint = GoldCoin,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                val minutes = playSeconds / 60
+                                val seconds = playSeconds % 60
+                                Text(
+                                    text = String.format("%02d:%02d", minutes, seconds),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = GoldCoin
+                                )
+                            }
+                        }
+
+                        // Reward badge
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (earnedRewardBonus) SuccessGreen.copy(alpha = 0.2f) else GoldCoin.copy(alpha = 0.2f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MonetizationOn,
+                                    contentDescription = null,
+                                    tint = if (earnedRewardBonus) SuccessGreen else GoldCoin,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = if (earnedRewardBonus) "+Bonus Aktif!" else "Cuan",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (earnedRewardBonus) SuccessGreen else GoldCoinDark
+                                )
+                            }
+                        }
+                    }
+
+                    // Reward Progress Bar for 60s target
+                    val progress = (playSeconds / 60f).coerceIn(0f, 1f)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .clip(RoundedCornerShape(2.dp)),
+                        color = if (earnedRewardBonus) SuccessGreen else GoldCoin,
+                        trackColor = Color.White.copy(alpha = 0.1f)
+                    )
+                }
             }
         }
 

@@ -15,13 +15,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.MonetizationOn
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,15 +35,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.ui.theme.BrandPrimary
+import com.example.ui.theme.BrandSecondary
 import com.example.ui.theme.GoldCoin
+import com.example.ui.theme.GoldCoinDark
 
 @Composable
 fun GameCuanHeader(
@@ -54,13 +63,19 @@ fun GameCuanHeader(
         color = MaterialTheme.colorScheme.background,
         shadowElevation = 3.dp
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 840.dp)
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
             // App branding with the new Game & Coin Logo
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -84,20 +99,62 @@ fun GameCuanHeader(
 
                 Spacer(modifier = Modifier.width(10.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                val isDark = MaterialTheme.colorScheme.background.red < 0.5f
+                val gameBrush = if (isDark) {
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF60A5FA), // Biru Neon Terang
+                            Color(0xFFA78BFA)  // Violet Neon Game
+                        )
+                    )
+                } else {
+                    Brush.linearGradient(
+                        colors = listOf(
+                            BrandPrimary,       // Biru Royal Modern
+                            BrandSecondary      // Indigo Ungu
+                        )
+                    )
+                }
+
+                val cuanBrush = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFFFFD700), // Emas Kilau Amber
+                        Color(0xFFFF9100), // Oranye Emas Cerah
+                        GoldCoinDark       // Emas Mewah
+                    )
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
                         text = "GAME",
-                        fontSize = 19.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onBackground
+                        letterSpacing = 0.5.sp,
+                        style = TextStyle(brush = gameBrush)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "CUAN",
-                        fontSize = 19.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
-                        color = GoldCoin
+                        letterSpacing = 0.5.sp,
+                        style = TextStyle(brush = cuanBrush)
                     )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Surface(
+                        color = Color(0xFFFFD700).copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = "PRO",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = if (isDark) Color(0xFFFFD700) else GoldCoinDark,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
                 }
             }
 
@@ -177,4 +234,5 @@ fun GameCuanHeader(
             }
         }
     }
+}
 }

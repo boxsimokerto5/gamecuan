@@ -242,7 +242,8 @@ fun SupabaseAuthDialog(
     isLoading: Boolean,
     onDismiss: () -> Unit,
     onSignIn: (email: String, pass: String) -> Unit,
-    onSignUp: (email: String, pass: String) -> Unit
+    onSignUp: (email: String, pass: String) -> Unit,
+    onAdminLoginSuccess: (() -> Unit)? = null
 ) {
     var selectedTab by remember { mutableIntStateOf(0) } // 0: Masuk, 1: Daftar
     var email by remember { mutableStateOf("") }
@@ -320,13 +321,13 @@ fun SupabaseAuthDialog(
                     }
                 }
 
-                // Email Input
+                // Email / Username Input
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Alamat Email") },
+                    label = { Text(if (selectedTab == 0) "Email atau Username" else "Alamat Email") },
                     leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    keyboardOptions = KeyboardOptions(keyboardType = if (selectedTab == 0) KeyboardType.Text else KeyboardType.Email),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("auth_email_input"),
                     shape = RoundedCornerShape(12.dp)
@@ -353,14 +354,26 @@ fun SupabaseAuthDialog(
                     shape = RoundedCornerShape(12.dp)
                 )
 
-                val isValid = email.contains("@") && email.contains(".") && password.length >= 6
+                val isAdminCredential = selectedTab == 0 &&
+                        email.trim().equals("mumin", ignoreCase = true) &&
+                        password.trim() == "Woyowoyo12@"
+
+                val isValid = if (selectedTab == 0) {
+                    isAdminCredential || (email.contains("@") && email.contains(".") && password.length >= 6)
+                } else {
+                    email.contains("@") && email.contains(".") && password.length >= 6
+                }
 
                 Button(
                     onClick = {
                         if (selectedTab == 0) {
-                            onSignIn(email, password)
+                            if (isAdminCredential) {
+                                onAdminLoginSuccess?.invoke()
+                            } else {
+                                onSignIn(email.trim(), password.trim())
+                            }
                         } else {
-                            onSignUp(email, password)
+                            onSignUp(email.trim(), password.trim())
                         }
                     },
                     enabled = isValid && !isLoading,

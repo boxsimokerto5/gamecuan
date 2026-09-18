@@ -101,6 +101,9 @@ fun WalletScreen(
     onOpenConfigDialog: () -> Unit = {},
     onSyncNow: () -> Unit = {},
     onSignOut: () -> Unit = {},
+    danaKagetCampaign: com.example.data.model.DanaKagetCampaign? = null,
+    isDanaKagetClaimed: Boolean = false,
+    onClaimDanaKaget: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val providers = remember {
@@ -253,6 +256,18 @@ fun WalletScreen(
                         }
                     }
                 }
+            }
+        }
+
+        // Dana Kaget Drop Banner
+        if (danaKagetCampaign != null) {
+            item {
+                com.example.ui.components.DanaKagetLiveBanner(
+                    campaign = danaKagetCampaign,
+                    isClaimedByMe = isDanaKagetClaimed,
+                    onClaimClick = onClaimDanaKaget,
+                    onOpenAdminPanel = null
+                )
             }
         }
 

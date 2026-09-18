@@ -56,7 +56,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.data.model.DanaKagetCampaign
 import com.example.data.model.GamePixItem
+import com.example.ui.components.DanaKagetLiveBanner
 import com.example.ui.theme.BrandPrimary
 import com.example.ui.theme.GoldCoin
 import com.example.ui.theme.GoldCoinDark
@@ -71,6 +73,9 @@ fun GamesScreen(
     onCategorySelected: (String) -> Unit,
     onGameClicked: (GamePixItem) -> Unit,
     onRefresh: () -> Unit,
+    danaKagetCampaign: DanaKagetCampaign? = null,
+    isDanaKagetClaimed: Boolean = false,
+    onClaimDanaKaget: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val categories = listOf(
@@ -223,7 +228,7 @@ fun GamesScreen(
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+                columns = GridCells.Adaptive(minSize = 160.dp),
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f)
@@ -232,8 +237,20 @@ fun GamesScreen(
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                // Dana Kaget Drop Banner (Active & Flash Rush)
+                if (danaKagetCampaign != null) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        DanaKagetLiveBanner(
+                            campaign = danaKagetCampaign,
+                            isClaimedByMe = isDanaKagetClaimed,
+                            onClaimClick = onClaimDanaKaget,
+                            onOpenAdminPanel = null
+                        )
+                    }
+                }
+
                 // Info banner item
-                item(span = { GridItemSpan(2) }) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
                     Surface(
                         shape = RoundedCornerShape(12.dp),
                         color = GoldCoin.copy(alpha = 0.12f),

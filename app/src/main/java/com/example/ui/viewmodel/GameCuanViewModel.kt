@@ -8,7 +8,9 @@ import com.example.data.db.DailyMissionEntity
 import com.example.data.db.PointHistoryEntity
 import com.example.data.db.UserWalletEntity
 import com.example.data.db.WithdrawalTransactionEntity
+import com.example.data.model.DanaKagetCampaign
 import com.example.data.model.GamePixItem
+import com.example.data.repository.DanaKagetRepository
 import com.example.data.repository.GameRepository
 import com.example.data.repository.UserRewardRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,10 @@ class GameCuanViewModel(application: Application) : AndroidViewModel(application
     private val db = AppDatabase.getInstance(application)
     private val rewardRepo = UserRewardRepository(db)
     private val gameRepo = GameRepository()
+    private val danaKagetRepo = DanaKagetRepository(application, db)
+
+    val activeDanaKaget: StateFlow<DanaKagetCampaign?> = danaKagetRepo.activeCampaign
+    val claimedDanaKagetIds: StateFlow<Set<String>> = danaKagetRepo.claimedCampaignIds
 
     val walletState: StateFlow<UserWalletEntity> = rewardRepo.walletFlow
         .stateIn(
@@ -305,6 +311,49 @@ class GameCuanViewModel(application: Application) : AndroidViewModel(application
             rewardRepo.recordShareAction()
             _notificationMessage.value = "Tautan Game Cuan disalin! Misi berbagi selesai! ✨"
         }
+    }
+
+    // --- DANA KAGET (ADMIN & USER FASTEST-FINGER CLAIM) ---
+
+    fun broadcastDanaKaget(
+        title: String,
+        linkUrl: String,
+        totalQuota: Int,
+        rewardPointsPerUser: Int,
+        onDone: (DanaKagetCampaign) -> Unit
+    ) {
+        viewModelScope.launch {
+            val campaign = danaKagetRepo.createAndBroadcastCampaign(
+                title = title,
+                linkUrl = linkUrl,
+                totalQuota = totalQuota,
+                rewardPointsPerUser = rewardPointsPerUser,
+                notifyUsers = true
+            )
+            _notificationMessage.value = "🚀 Dana Kaget berhasil disebarkan ke semua pemain!"
+            onDone(campaign)
+        }
+    }
+
+    fun endDanaKaget() {
+        viewModelScope.launch {
+            danaKagetRepo.endCampaign()
+            _notificationMessage.value = "Event Dana Kaget telah diakhiri."
+        }
+    }
+
+    fun claimDanaKaget(onResult: (Boolean, String, String?, Int) -> Unit) {
+        viewModelScope.launch {
+            val result = danaKagetRepo.claimDanaKaget(userId = "user_device_me")
+            if (result.success) {
+                _notificationMessage.value = result.message
+            }
+            onResult(result.success, result.message, result.linkUrl.takeIf { it.isNotBlank() }, result.pointsAwarded)
+        }
+    }
+
+    fun showNotification(msg: String) {
+        _notificationMessage.value = msg
     }
 
     fun clearNotification() {
